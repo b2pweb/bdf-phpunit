@@ -1,5 +1,5 @@
 {
-  "name": "b2p/bdf-phpunit",
+  "name": "b2pweb/bdf-phpunit",
   "description": "Bdf phpunit bridge",
   "type": "library",
   "license": "MIT",
