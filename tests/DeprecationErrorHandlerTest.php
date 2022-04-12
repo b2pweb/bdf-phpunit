@@ -48,11 +48,11 @@ class DeprecationErrorHandlerTest extends TestCase
         $stdout = ob_get_contents();
         ob_end_clean();
 
-        $expected = <<<STDOUT
-
-No deprecation notice
-
-STDOUT;
+        if (function_exists('posix_isatty') && @posix_isatty(STDOUT)) {
+            $expected = "\n\x1B[42;30mNo deprecation notice\x1B[0m\n";
+        } else {
+            $expected = "\nNo deprecation notice\n";
+        }
 
         $this->assertSame($expected, $stdout);
     }
@@ -70,16 +70,21 @@ STDOUT;
         $stdout = ob_get_contents();
         ob_end_clean();
 
+        if (function_exists('posix_isatty') && @posix_isatty(STDOUT)) {
+            $expected = "\n\x1B[43;30mDeprecation notices (1):\x1B[0m";
+        } else {
+            $expected = "\nDeprecation notices (1):\n";
+        }
+
+        $this->assertStringContainsString($expected, $stdout);
+
         $expected = <<<STDOUT
-
-Deprecation notices (1):
-
 1) PHPUnit\TextUI\Command
   ->main()
       Test: 1
 
 STDOUT;
 
-        $this->assertSame($expected, $stdout);
+        $this->assertStringContainsString($expected, $stdout);
     }
 }

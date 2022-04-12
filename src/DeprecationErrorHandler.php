@@ -23,6 +23,8 @@ namespace Bdf\PHPUnit;
 
 use PHPUnit\Util\ErrorHandler;
 
+@trigger_error(DeprecationErrorHandler::class.' is deprecated. Use Symfony\Bridge\PhpUnit\DeprecationErrorHandler instead of.', E_USER_DEPRECATED);
+
 /**
  * DeprecationErrorHandler
  *
@@ -30,6 +32,8 @@ use PHPUnit\Util\ErrorHandler;
  *
  * @link https://github.com/symfony/symfony/pull/13032
  * @author Nicolas Grekas <p@tchwork.com>
+ *
+ * @deprecated Use Symfony\Bridge\PhpUnit\DeprecationErrorHandler instead
  */
 class DeprecationErrorHandler
 {
@@ -122,9 +126,12 @@ class DeprecationErrorHandler
         ++$this->deprecations[0];
         $trace = debug_backtrace(PHP_VERSION_ID >= 50400 ? DEBUG_BACKTRACE_IGNORE_ARGS : false);
 
-        $i = count($trace);
-        while (isset($trace[--$i]['class']) && ('ReflectionMethod' === $trace[$i]['class'] || 0 === strpos($trace[$i]['class'], 'PHPUnit_'))) {
-            // No-op
+        $i = count($trace) - 1;
+        while (
+            ($trace[$i]['function'] ?? '') === 'include' ||
+            (isset($trace[$i]['class']) && ('ReflectionMethod' === $trace[$i]['class'] || 0 === strpos($trace[$i]['class'], 'PHPUnit_')))
+        ) {
+            $i--;
         }
 
         if (isset($trace[$i]['class'])) {
