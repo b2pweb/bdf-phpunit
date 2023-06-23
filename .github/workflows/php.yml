@@ -73,9 +73,6 @@ jobs:
             - name: Check PHP Version
               run: php -v
 
-            - name: Install dependencies
-              run: composer install --prefer-dist --no-progress
-
             - name: Install phpunit ${{ matrix.versions.phpunit }}
               run: composer req --dev phpunit/phpunit "^${{ matrix.versions.phpunit }}" -W
 
