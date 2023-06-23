@@ -1,0 +1,83 @@
+name: Build
+
+on:
+    push:
+        branches: [ 'master' ]
+    pull_request:
+        branches: [ 'master' ]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php-versions: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+        name: PHP ${{ matrix.php-versions }}
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Set Timezone
+              uses: szenius/set-timezone@v1.0
+              with:
+                  timezoneLinux: "Europe/Paris"
+
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: json
+                  ini-values: date.timezone=Europe/Paris
+            - name: Check PHP Version
+              run: php -v
+
+            - name: Validate composer.json and composer.lock
+              run: composer validate --strict
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-progress
+
+            - name: Run test suite
+              run: vendor/bin/phpunit
+
+    phpunit_compatiblity:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                versions:
+                  - php: 7.4
+                    phpunit: 7.0
+                  - php: 7.4
+                    phpunit: 8.0
+                  - php: 7.4
+                    phpunit: 9.0
+                  - php: 8.1
+                    phpunit: 10.0
+
+        name: PHP ${{ matrix.versions.php }} with PHPUnit ${{ matrix.versions.phpunit }}
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Set Timezone
+              uses: szenius/set-timezone@v1.0
+              with:
+                  timezoneLinux: "Europe/Paris"
+
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.versions.php }}
+                  extensions: json
+                  ini-values: date.timezone=Europe/Paris
+            - name: Check PHP Version
+              run: php -v
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-progress
+
+            - name: Install phpunit ${{ matrix.versions.phpunit }}
+              run: composer req --dev phpunit/phpunit "^${{ matrix.versions.phpunit }}" -W
+
+            - name: Run test suite
+              run: vendor/bin/phpunit

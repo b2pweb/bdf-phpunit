@@ -3,18 +3,29 @@
 namespace Bdf\PHPUnit\Comparator;
 
 use DateTimeInterface;
+use SebastianBergmann\Comparator\Comparator;
 use SebastianBergmann\Comparator\ComparisonFailure;
 use SebastianBergmann\Comparator\DateTimeComparator as BaseDateTimeComparator;
 
 /**
  * DateTimeComparator
  */
-class DateTimeComparator extends BaseDateTimeComparator
+class DateTimeComparator extends Comparator
 {
+    /**
+     * @var BaseDateTimeComparator
+     */
+    private $comparator;
+
+    public function __construct()
+    {
+        $this->comparator = new BaseDateTimeComparator();
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function accepts($expected, $actual)
+    public function accepts($expected, $actual): bool
     {
         return $expected instanceof DateTimeInterface && $actual instanceof DateTimeInterface;
     }
@@ -22,10 +33,10 @@ class DateTimeComparator extends BaseDateTimeComparator
     /**
      * {@inheritdoc}
      */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = array())
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = array()): void
     {
         try {
-            parent::assertEquals($expected, $actual, $delta);
+            $this->comparator->assertEquals($expected, $actual, $delta);
         } catch (ComparisonFailure $e) {
             $diff = $expected->diff($actual);
 

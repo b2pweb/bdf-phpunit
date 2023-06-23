@@ -21,6 +21,7 @@ THE SOFTWARE.
 
 namespace Bdf\PHPUnit;
 
+use PHPUnit\Event\Runtime\PHPUnit;
 use PHPUnit\Util\ErrorHandler;
 
 @trigger_error(DeprecationErrorHandler::class.' is deprecated. Use Symfony\Bridge\PhpUnit\DeprecationErrorHandler instead of.', E_USER_DEPRECATED);
@@ -71,12 +72,22 @@ class DeprecationErrorHandler
      */
     private function getPhpunitHandler()
     {
-        if (method_exists(ErrorHandler::class, 'handleError')) {
-            return [ErrorHandler::class, 'handleError'];
+        // PHPUnit 7 - 9
+        if (class_exists(ErrorHandler::class)) {
+            if (method_exists(ErrorHandler::class, 'handleError')) {
+                return [ErrorHandler::class, 'handleError'];
+            }
+
+            // PHPUnit >= 8
+            return new ErrorHandler(false, false, false, false);
         }
 
-        // PHPUnit >= 8
-        return new ErrorHandler(false, false, false, false);
+        // PHPUnit 10
+        if (class_exists(\PHPUnit\Runner\ErrorHandler::class)) {
+            return new \PHPUnit\Runner\ErrorHandler();
+        }
+
+        return function () { return false; };
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Bdf\PHPUnit;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\TextUI\Command;
 
 /**
  *
@@ -33,7 +34,7 @@ class DeprecationErrorHandlerTest extends TestCase
         $handler->handleError(E_USER_DEPRECATED, 'Test');
         $deprecation = current($handler->getDeprecations());
 
-        $this->assertEquals(['Test' => 1], $deprecation['main']);
+        $this->assertEquals(['Test' => 1], $deprecation['main'] ?? $deprecation['run']);
     }
 
     /**
@@ -78,12 +79,21 @@ class DeprecationErrorHandlerTest extends TestCase
 
         $this->assertStringContainsString($expected, $stdout);
 
-        $expected = <<<STDOUT
+        if (class_exists(Command::class)) {
+            $expected = <<<STDOUT
 1) PHPUnit\TextUI\Command
   ->main()
       Test: 1
 
 STDOUT;
+        } else {
+            $expected = <<<STDOUT
+1) PHPUnit\TextUI\Application
+  ->run()
+      Test: 1
+
+STDOUT;
+        }
 
         $this->assertStringContainsString($expected, $stdout);
     }
