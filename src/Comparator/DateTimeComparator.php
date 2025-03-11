@@ -55,7 +55,7 @@ class DateTimeComparator extends Comparator
      */
     private function isMicrotimeDiff(\DateInterval $diff)
     {
-        return $diff->days === 0
+        return ($diff->days === 0 || $diff->days === false)
             && $diff->y === 0
             && $diff->m === 0
             && $diff->d === 0

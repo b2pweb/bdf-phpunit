@@ -2,6 +2,7 @@
 
 namespace Bdf\PHPUnit\Comparator;
 
+use Carbon\Carbon;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 use SebastianBergmann\Comparator\ComparisonFailure;
@@ -32,6 +33,21 @@ class DateTimeComparatorTest extends TestCase
 
         $expected = new DateTime('2017-06-28T12:32:26');
         $actual = new DateTime('2017-06-28T12:32:26');
+
+        $result = $comparator->assertEquals($expected, $actual);
+
+        $this->assertNull($result);
+    }
+
+    /**
+     *
+     */
+    public function test_assert_is_equals_with_carbon_date()
+    {
+        $comparator = new DateTimeComparator();
+
+        $expected = Carbon::now();
+        $actual = Carbon::now();
 
         $result = $comparator->assertEquals($expected, $actual);
 
